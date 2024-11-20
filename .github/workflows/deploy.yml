@@ -30,6 +30,8 @@ jobs:
         with:
           client-id: ${{ secrets.INFISICAL_CLIENT_ID }} # Update this to your own Github references
           client-secret: ${{ secrets.INFISICAL_CLIENT_SECRET }} # Update this to your own Github references
+          identity-id: ${{ secrets.INFISICAL_IDENTITY_ID }}
+          domain: ${{ secrets.INFISICAL_DOMAIN }}
           env-slug: "staging"
           project-slug: "boilerplate-n-zmg"
 #        run: |
