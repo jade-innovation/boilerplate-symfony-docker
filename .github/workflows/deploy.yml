@@ -1,0 +1,45 @@
+name: Deploy Test
+
+on:
+  push:
+    branches:
+      - staging
+
+  workflow_dispatch:
+
+jobs:
+  build_push_to_registry:
+    name: Push to Azure Registry
+    runs-on: ubuntu-latest
+    steps:
+      - name: check out the repo
+        uses: actions/checkout@v4
+
+      - name: set up Docker builder
+        uses: docker/setup-buildx-action@v3
+
+      - name: log into Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.DO_REGISTRY_URL }}
+          username: doctl
+          password: ${{ secrets.DO_TOKEN }}
+
+      - name: Run pre-build script
+        run: |
+          #!/bin/bash
+          echo "==========================={ Installing infisical }==========================="
+          curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo -E bash
+          sudo apt-get update && sudo apt-get install -y infisical
+
+          infisical export --token=${{ secrets.INFISICAL_STAGING_TOKEN }} --domain=${{ secrets.INFISICAL_DOMAIN }} --env=staging > .env
+
+      - name: Push back to Container Registry
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DO_REGISTRY_URL }}/${{ github.event.repository.name }}/staging:${{ github.sha }}
+            ${{ secrets.DO_REGISTRY_URL }}/${{ github.event.repository.name }}/staging:latest
