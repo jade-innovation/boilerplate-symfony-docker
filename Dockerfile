@@ -33,6 +33,13 @@ RUN set -eux; \
 		zip \
 	;
 
+###> recipes ###
+###> doctrine/doctrine-bundle ###
+RUN set -eux; \
+	install-php-extensions pdo_pgsql
+###< doctrine/doctrine-bundle ###
+###< recipes ###
+
 # https://getcomposer.org/doc/03-cli.md#composer-allow-superuser
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
